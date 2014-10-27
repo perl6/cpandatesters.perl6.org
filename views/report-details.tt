@@ -1,0 +1,36 @@
+% my ($x, $raw) = @_;
+<h1><span class="label label-<%=
+    do given $x<grade> {
+        when 'PASS' { 'success' }
+        when 'FAIL' { 'danger'  }
+        default     { 'warning' }
+    } %>"><%= $x<grade> %></span> <%= $raw<name> ~ ' ' ~ $raw<version> %></h1>
+<br />
+<div class="col-sm-4" style="padding-left: 0">
+    <table class="table table-condensed">
+        <tbody>
+            <tr>
+                <td>Compiler</td>
+                <td><%= $raw<perl><compiler><name> ~ ' ' ~ $raw<perl><compiler><version> %></td>
+            </tr>
+            <tr>
+                <td>Backend</td>
+                <td><%= $raw<vm><name> ~ ' ' ~ $raw<vm><version> %></td>
+            </tr>
+            <tr>
+                <td>Operating system</td>
+                <td><%= $raw<distro><name> ~ ' ' ~ $raw<distro><release> ~ ' ' ~ $raw<kernel><arch> %></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<br />
+<div class="clearfix"></div>
+<h4><span class="label label-<%= $raw<build-passed> ?? 'success' !! 'danger' %>"><%= $raw<build-passed> ?? 'PASS' !! 'FAIL' %></span> Build stage</h4>
+<pre><%= $raw<build-output> // '' %></pre>
+<br />
+<h4><span class="label label-<%= $raw<test-passed> ?? 'success' !! 'danger' %>"><%= $raw<test-passed> ?? 'PASS' !! 'FAIL' %></span> Test stage</h4>
+<pre><%= $raw<test-output> // '' %></pre>
+<br />
+<h4><span class="fa fa-info"></span> Environment</h4>
+<pre><%= $x<raw> %></pre>

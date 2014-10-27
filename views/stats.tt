@@ -1,0 +1,18 @@
+% my ($osnames, $x, &template) = @_;
+<thead>
+    <tr>
+        <th width="15%">Compiler version</th>
+        % my $width = (85 / $osnames.elems).Int;
+        <%= $osnames.map({'<th width="' ~ $width ~ '%">' ~ $_ ~ '</th>'}).join %>
+    </tr>
+</thead>
+<tbody>
+    <%=
+        do for $x.keys.sort({ Version.new($^b) cmp Version.new($^a)}) -> $compver {
+            '<tr>
+                <td>' ~ $compver ~ '</td>
+                <td>' ~ $osnames.map({ template 'cell.tt', $x{$compver}{$_} }).join('</td><td>') ~ '</td>
+            </tr>';
+        }
+    %>
+</tbody>

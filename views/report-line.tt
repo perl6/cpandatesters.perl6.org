@@ -1,0 +1,20 @@
+% my ($x) = @_;
+<tr class="clickableRow" href="/report<%= $x<breadcrumb> %>/<%= $x<id> %>">
+    <td>
+        <div class="progress" style="margin-bottom: 0">
+            <div class="progress-bar progress-bar-<%=
+                do given $x<grade> {
+                    when 'PASS' { 'success' }
+                    when 'FAIL' { 'danger'  }
+                    default     { 'warning' }
+                } %>" style="width: 100%">
+                <span><%= $x<grade> %></span>
+            </div>
+        </div>
+    </td>
+    <td><%= $x<compver> %></td>
+    <td><%= $x<backend> %></td>
+    <td><%= $x<osname> %></td>
+    <td><%= $x<osver> %></td>
+    <td><%= $x<arch> %></td>
+</tr>

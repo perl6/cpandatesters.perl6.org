@@ -1,0 +1,16 @@
+% my ($x) = @_;
+<div class="progress" style="margin-bottom: 1px; height: 10px; border-bottom-right-radius: 0; border-bottom-left-radius: 0;" title="MoarVM">
+    <div class="progress-bar progress-bar-success" style="width: <%= $x<moar><PASS> %>%"></div>
+    <div class="progress-bar progress-bar-warning" style="width: <%= $x<moar><NA>   %>%"></div>
+    <div class="progress-bar progress-bar-danger"  style="width: <%= $x<moar><FAIL> %>%"></div>
+</div>
+<div class="progress" style="margin-bottom: 1px; height: 10px; border-radius: 0;" title="JVM">
+    <div class="progress-bar progress-bar-success" style="width: <%= $x<jvm><PASS> %>%"></div>
+    <div class="progress-bar progress-bar-warning" style="width: <%= $x<jvm><NA>   %>%"></div>
+    <div class="progress-bar progress-bar-danger"  style="width: <%= $x<jvm><FAIL> %>%"></div>
+</div>
+<div class="progress" style="margin-bottom: 1px; height: 10px; border-top-right-radius: 0; border-top-left-radius: 0;" title="Parrot">
+    <div class="progress-bar progress-bar-success" style="width: <%= $x<parrot><PASS> %>%"></div>
+    <div class="progress-bar progress-bar-warning" style="width: <%= $x<parrot><NA>   %>%"></div>
+    <div class="progress-bar progress-bar-danger"  style="width: <%= $x<parrot><FAIL> %>%"></div>
+</div>
