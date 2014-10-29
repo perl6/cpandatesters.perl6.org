@@ -8,13 +8,14 @@ use DBIish;
 
 Bailador::import;
 
-my %db-options = :user<foo>, :password<bar>,
-                 :host<localhost>, :port<3306>, :database<cpandatesters>;
+DBIish.install_driver('mysql');
+my $dbh = DBIish.connect('mysql',
+    :user<foo>, :password<bar>,
+    :host<localhost>, :port<3306>, :database<cpandatesters>
+);
+
 
 get '/' | '/dists' => sub {
-    DBIish.install_driver('mysql');
-    my $dbh = DBIish.connect('mysql', |%db-options);
-
     # TODO create a table `dists` and precalc its PASS ratio in a cronjob
     my $sth = $dbh.prepare("SELECT DISTINCT `distname`, `distauth`
                             FROM `cpandatesters`.`reports`
@@ -24,7 +25,6 @@ get '/' | '/dists' => sub {
     while $sth.fetchrow_hashref -> $/ {
         $dist-lines ~= template 'dist-line.tt', $/
     }
-    $dbh.disconnect();
     template 'main.tt', {
         :breadcrumb(['Distributions']),
         :content( template 'dists.tt', { :$dist-lines })
@@ -32,12 +32,10 @@ get '/' | '/dists' => sub {
 }
 
 get /^ '/dist/' (.+) / => sub ($distname) {
-    DBIish.install_driver('mysql');
-    my $dbh = DBIish.connect('mysql', |%db-options);
-
     my $sth = $dbh.prepare("SELECT `id`,`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`
                             FROM `cpandatesters`.`reports`
-                            WHERE `distname`=?");
+                            WHERE `distname`=?
+                            ORDER BY `id` DESC");
     $sth.execute($distname);
     my %reports;
     my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
@@ -50,7 +48,6 @@ get /^ '/dist/' (.+) / => sub ($distname) {
         $<breadcrumb> = "/dist/$distname";
         %reports{$<distver>}.push: template 'report-line.tt', $/
     }
-    $dbh.disconnect();
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
             for <moar jvm parrot> -> $backend {
@@ -95,9 +92,6 @@ get /^ '/dist/' (.+) / => sub ($distname) {
 }
 
 get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
-    DBIish.install_driver('mysql');
-    my $dbh = DBIish.connect('mysql', |%db-options);
-
     my $sth = $dbh.prepare("SELECT *
                             FROM `cpandatesters`.`reports`
                             WHERE `id`=?");
@@ -108,7 +102,6 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
         if @path[0] eq 'dist' {
             $breadcrumb.unshift: 'Distributions' => '/dists', @path[1] => "/dist/@path[1]"
         }
-        $dbh.disconnect();
         template 'main.tt', {
             :$breadcrumb,
             :content( template 'report-details.tt', $r, from-json $r<raw>)
@@ -116,7 +109,6 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
     }
     else {
         status 404;
-        $dbh.disconnect();
         return "File not found";
     }
 }
@@ -130,13 +122,9 @@ get /^ '/' ([ css | js | fonts ] '/' .+) / => sub ($file is copy) {
 
 post '/report' => sub {
     my $report = from-json request.body;
-
-    DBIish.install_driver('mysql');
-    my $dbh = DBIish.connect('mysql', |%db-options);
-
-    my $sth = $dbh.prepare("INSERT INTO `cpandatesters`.`reports`
-                            (`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`,`raw`)
-                            VALUES (?,?,?,?,?,?,?,?,?,?)");
+    my $sth    = $dbh.prepare("INSERT INTO `cpandatesters`.`reports`
+                               (`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`,`raw`)
+                               VALUES (?,?,?,?,?,?,?,?,?,?)");
     $sth.execute(
         $report<build-passed> && $report<test-passed> ?? 'PASS' !! 'FAIL',
         $report<name>,
@@ -149,8 +137,8 @@ post '/report' => sub {
         $report<kernel><arch>,
         request.body,
     );
-
-    $dbh.disconnect();
 }
 
 baile;
+
+$dbh.disconnect();
