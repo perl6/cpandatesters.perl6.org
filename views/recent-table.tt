@@ -1,0 +1,18 @@
+% my ($x) = @_;
+<table class="table table-bordered table-striped table-condensed">
+    <thead>
+        <tr>
+            <th width="10%">Grade</th>
+            <th>Distribution name</th>
+            <th>Dist version</th>
+            <th>Compiler version</th>
+            <th>Backend</th>
+            <th>OS name</th>
+            <th>OS version</th>
+            <th>Architecture</th>
+        </tr>
+    </thead>
+    <tbody>
+        <%= $x<report-lines> %>
+    </tbody>
+</table>

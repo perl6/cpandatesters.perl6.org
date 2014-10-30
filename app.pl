@@ -28,7 +28,8 @@ get '/' | '/dists' => sub {
     template 'main.tt', {
         :breadcrumb(['Distributions']),
         :content( template 'dists.tt', { :$dist-lines })
-    }
+    },
+    &request
 }
 
 get /^ '/dist/' (.+) / => sub ($distname) {
@@ -88,7 +89,67 @@ get /^ '/dist/' (.+) / => sub ($distname) {
             :stats( template 'stats.tt', [@osnames.sort], $%stats, &template ),
             :report-tables($reports)
         }),
+    },
+    &request
+}
+
+get '/recent' => sub {
+    my $sth = $dbh.prepare("SELECT `id`,`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`
+                            FROM `cpandatesters`.`reports`
+                            ORDER BY `id` DESC
+                            LIMIT 100");
+    $sth.execute;
+    my @reports;
+    my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
+    my %stats;
+    while $sth.fetchrow_hashref -> $/ {
+        %stats{$<compver>}{$<osname>}{$<backend>}{$<grade>}++;
+        @osnames.push: $<osname> unless $<osname> ~~ any @osnames;
+
+        $<distver>    = '0' if $<distver> eq '*';
+        $<breadcrumb> = '/recent';
+        @reports.push: template 'recent-line.tt', $/
     }
+    for @osnames -> $osname {
+        for %stats.keys -> $compver is copy {
+            for <moar jvm parrot> -> $backend {
+                my $all = [+] %stats{$compver}{$osname}{$backend}.values;
+                for <PASS FAIL NA> -> $grade {
+                    if %stats{$compver}{$osname}{$backend}{$grade} {
+                        %stats{$compver}{$osname}{$backend}{$grade} /= $all / 100;
+                        if 0 < %stats{$compver}{$osname}{$backend}{$grade} < 2 {
+                            %stats{$compver}{$osname}{$backend}{$grade}.=ceiling
+                        }
+                        else {
+                            %stats{$compver}{$osname}{$backend}{$grade}.=floor;
+                        }
+                    }
+                    else {
+                        %stats{$compver}{$osname}{$backend}{$grade} = 0
+                    }
+                }
+                my $deviation = 100 - [+] %stats{$compver}{$osname}{$backend}.values;
+                if -10 < $deviation < 10 {
+                    my $grade = %stats{$compver}{$osname}{$backend}.sort(*.value).reverse[0].key;
+                    %stats{$compver}{$osname}{$backend}{$grade} += $deviation;
+                }
+            }
+        }
+    }
+
+    template 'main.tt', {
+        :breadcrumb(['Most recent reports']),
+        :content(
+            '<h4>Code quality across operating system, compiler version and backend</h4>' ~
+            template 'dist.tt', {
+            :stats( template 'stats.tt', [@osnames.sort], $%stats, &template ),
+            :report-tables(
+                '<h4>Top 100 reports</h4>' ~
+                template 'recent-table.tt', { :report-lines(@reports.join("\n")) }
+            )
+        }),
+    },
+    &request
 }
 
 get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
@@ -99,13 +160,19 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
     if $sth.fetchrow_hashref -> $r {
         my @path = $path.Str.split('/');
         my $breadcrumb = ["Report $id"];
-        if @path[0] eq 'dist' {
-            $breadcrumb.unshift: 'Distributions' => '/dists', @path[1] => "/dist/@path[1]"
+        given @path[0] {
+            when 'dist' {
+                $breadcrumb.unshift: 'Distributions' => '/dists', @path[1] => "/dist/@path[1]"
+            }
+            when 'recent' {
+                $breadcrumb.unshift: 'Most recent reports' => '/recent'
+            }
         }
         template 'main.tt', {
             :$breadcrumb,
             :content( template 'report-details.tt', $r, from-json $r<raw>)
-        }
+        },
+        &request
     }
     else {
         status 404;

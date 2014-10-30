@@ -1,4 +1,4 @@
-% my ($x) = @_;
+% my ($x, &request) = @_;
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -169,9 +169,9 @@
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse" id="navbarCollapse">
                             <ul class="nav navbar-nav">
-                                <li class="active"><a href="/dists">Distributions</a></li>
-                                <li><a href="/authors" title="NYI">Authors</a></li>
-                                <li><a href="/recent" title="NYI">Most recent reports</a></li>
+                                <li<%= request.path ~~ /^ '/dists'   [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/dists">Distributions</a></li>
+                                <li<%= request.path ~~ /^ '/authors' [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/authors" title="NYI">Authors</a></li>
+                                <li<%= request.path ~~ /^ '/recent'  [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/recent">Most recent reports</a></li>
                             </ul>
                         </div>
                     </div>
