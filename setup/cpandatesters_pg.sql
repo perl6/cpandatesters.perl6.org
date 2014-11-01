@@ -42,15 +42,15 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE reports (
-    id integer NOT NULL,
-    distname character(64),
-    distauth character(64),
-    distver character(32),
-    compver character(32),
-    backend character(16),
-    osname character(32),
-    osver character(32),
-    arch character(64),
+    id serial,
+    distname character varying(64),
+    distauth character varying(64),
+    distver character varying(32),
+    compver character varying(32),
+    backend character varying(16),
+    osname character varying(32),
+    osver character varying(32),
+    arch character varying(64),
     raw json
 );
 
