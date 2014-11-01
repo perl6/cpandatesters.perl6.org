@@ -8,10 +8,10 @@ use DBIish;
 
 Bailador::import;
 
-DBIish.install_driver('mysql');
-my $dbh = DBIish.connect('mysql',
-    :user<foo>, :password<bar>,
-    :host<localhost>, :port<3306>, :database<cpandatesters>
+DBIish.install_driver('Pg');
+my $dbh = DBIish.connect('Pg',
+    :user<cpandatesters>, :password<cpandatesters>,
+    :host<localhost>, :port<5432>, :database<cpandatesters>
 );
 my $host = '127.0.0.1';
 
@@ -29,9 +29,9 @@ my &stats          := Template::Mojo.new(slurp 'views/stats.tt').code;
 
 get '/' | '/dists' => sub {
     # TODO create a table `dists` and precalc its PASS ratio in a cronjob
-    my $sth = $dbh.prepare("SELECT DISTINCT `distname`, `distauth`
-                            FROM `cpandatesters`.`reports`
-                            ORDER BY `distname`");
+    my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
+                            FROM reports
+                            ORDER BY distname');
     $sth.execute;
     my $dist-lines = '';
     while $sth.fetchrow_hashref -> $/ {
@@ -46,10 +46,10 @@ get '/' | '/dists' => sub {
 }
 
 get /^ '/dist/' (.+) / => sub ($distname) {
-    my $sth = $dbh.prepare("SELECT `id`,`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`
-                            FROM `cpandatesters`.`reports`
-                            WHERE `distname`=?
-                            ORDER BY `id` DESC");
+    my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backend,osname,osver,arch
+                            FROM reports
+                            WHERE distname=?
+                            ORDER BY id DESC');
     $sth.execute($distname);
     my %reports;
     my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
@@ -109,10 +109,10 @@ get /^ '/dist/' (.+) / => sub ($distname) {
 }
 
 get '/recent' => sub {
-    my $sth = $dbh.prepare("SELECT `id`,`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`
-                            FROM `cpandatesters`.`reports`
-                            ORDER BY `id` DESC
-                            LIMIT 100");
+    my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backend,osname,osver,arch
+                            FROM reports
+                            ORDER BY id DESC
+                            LIMIT 100');
     $sth.execute;
     my @reports;
     my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
@@ -170,9 +170,9 @@ get '/recent' => sub {
 }
 
 get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
-    my $sth = $dbh.prepare("SELECT *
-                            FROM `cpandatesters`.`reports`
-                            WHERE `id`=?");
+    my $sth = $dbh.prepare('SELECT *
+                            FROM reports
+                            WHERE id=?');
     $sth.execute($id);
     if $sth.fetchrow_hashref -> $r {
         my @path = $path.Str.split('/');
@@ -202,9 +202,9 @@ get /^ '/' ([ css | js | fonts ] '/' .+) / => sub ($file is copy) {
 
 post '/report' => sub {
     my $report = from-json request.body;
-    my $sth    = $dbh.prepare("INSERT INTO `cpandatesters`.`reports`
-                               (`grade`,`distname`,`distauth`,`distver`,`compver`,`backend`,`osname`,`osver`,`arch`,`raw`)
-                               VALUES (?,?,?,?,?,?,?,?,?,?)");
+    my $sth    = $dbh.prepare('INSERT INTO reports
+                               (grade,distname,distauth,distver,compver,backend,osname,osver,arch,"raw")
+                               VALUES (?,?,?,?,?,?,?,?,?,?)');
     $sth.execute(
         $report<build-passed> && $report<test-passed> ?? 'PASS' !! 'FAIL',
         $report<name>,
