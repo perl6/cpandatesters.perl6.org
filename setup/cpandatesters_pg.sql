@@ -43,6 +43,7 @@ SET default_with_oids = false;
 
 CREATE TABLE reports (
     id serial,
+    grade character varying(8),
     distname character varying(64),
     distauth character varying(64),
     distver character varying(32),
