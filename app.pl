@@ -14,6 +14,17 @@ my $dbh = DBIish.connect('mysql',
     :host<localhost>, :port<3306>, :database<cpandatesters>
 );
 
+my &cell           := Template::Mojo.new(slurp 'views/cell.tt').code;
+my &dist           := Template::Mojo.new(slurp 'views/dist.tt').code;
+my &dist-line      := Template::Mojo.new(slurp 'views/dist-line.tt').code;
+my &dists          := Template::Mojo.new(slurp 'views/dists.tt').code;
+my &main           := Template::Mojo.new(slurp 'views/main.tt').code;
+my &recent-line    := Template::Mojo.new(slurp 'views/recent-line.tt').code;
+my &recent-table   := Template::Mojo.new(slurp 'views/recent-table.tt').code;
+my &report-details := Template::Mojo.new(slurp 'views/report-details.tt').code;
+my &report-line    := Template::Mojo.new(slurp 'views/report-line.tt').code;
+my &report-table   := Template::Mojo.new(slurp 'views/report-table.tt').code;
+my &stats          := Template::Mojo.new(slurp 'views/stats.tt').code;
 
 get '/' | '/dists' => sub {
     # TODO create a table `dists` and precalc its PASS ratio in a cronjob
@@ -23,13 +34,14 @@ get '/' | '/dists' => sub {
     $sth.execute;
     my $dist-lines = '';
     while $sth.fetchrow_hashref -> $/ {
-        $dist-lines ~= template 'dist-line.tt', $/
+        $dist-lines ~= dist-line($/)
     }
-    template 'main.tt', {
-        :breadcrumb(['Distributions']),
-        :content( template 'dists.tt', { :$dist-lines })
-    },
-    &request
+    main({
+            :breadcrumb(['Distributions']),
+            :content( dists({ :$dist-lines }) )
+        },
+        &request
+    )
 }
 
 get /^ '/dist/' (.+) / => sub ($distname) {
@@ -47,7 +59,7 @@ get /^ '/dist/' (.+) / => sub ($distname) {
 
         $<distver>    = '0' if $<distver> eq '*';
         $<breadcrumb> = "/dist/$distname";
-        %reports{$<distver>}.push: template 'report-line.tt', $/
+        %reports{$<distver>}.push: report-line($/)
     }
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
@@ -80,17 +92,19 @@ get /^ '/dist/' (.+) / => sub ($distname) {
     my @distvers = %reports.keys.sort({ Version.new($^b) cmp Version.new($^a)});
     for @distvers -> $distver {
         $reports ~= '<h4>v' ~ $distver ~ '</h4>'
-                  ~ template 'report-table.tt', { :report-lines(%reports{$distver}.join("\n")) }
+                  ~ report-table({ :report-lines(%reports{$distver}.join("\n")) })
     }
 
-    template 'main.tt', {
-        :breadcrumb(['Distributions' => '/dists', ~$distname]),
-        :content( template 'dist.tt', {
-            :stats( template 'stats.tt', [@osnames.sort], $%stats, &template ),
-            :report-tables($reports)
-        }),
-    },
-    &request
+    main({
+            :breadcrumb(['Distributions' => '/dists', ~$distname]),
+            :content( dist({
+                    :stats( stats([@osnames.sort], $%stats, &template) ),
+                    :report-tables($reports)
+                }),
+            )
+        },
+        &request
+    )
 }
 
 get '/recent' => sub {
@@ -108,7 +122,7 @@ get '/recent' => sub {
 
         $<distver>    = '0' if $<distver> eq '*';
         $<breadcrumb> = '/recent';
-        @reports.push: template 'recent-line.tt', $/
+        @reports.push: recent-line($/)
     }
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
@@ -137,19 +151,21 @@ get '/recent' => sub {
         }
     }
 
-    template 'main.tt', {
-        :breadcrumb(['Most recent reports']),
-        :content(
-            '<h4>Code quality across operating system, compiler version and backend</h4>' ~
-            template 'dist.tt', {
-            :stats( template 'stats.tt', [@osnames.sort], $%stats, &template ),
-            :report-tables(
-                '<h4>Top 100 reports</h4>' ~
-                template 'recent-table.tt', { :report-lines(@reports.join("\n")) }
-            )
-        }),
-    },
-    &request
+    main({
+            :breadcrumb(['Most recent reports']),
+            :content(
+                '<h4>Code quality across operating system, compiler version and backend</h4>' ~
+                dist({
+                    :stats( stats([@osnames.sort], $%stats, &template) ),
+                    :report-tables(
+                        '<h4>Top 100 reports</h4>' ~
+                        recent-table({ :report-lines(@reports.join("\n")) })
+                    )
+                }),
+            ),
+        },
+        &request
+    )
 }
 
 get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
@@ -168,11 +184,7 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
                 $breadcrumb.unshift: 'Most recent reports' => '/recent'
             }
         }
-        template 'main.tt', {
-            :$breadcrumb,
-            :content( template 'report-details.tt', $r, from-json $r<raw>)
-        },
-        &request
+        main({ :$breadcrumb, :content( report-details($r, from-json $r<raw>) ) }, &request)
     }
     else {
         status 404;
@@ -195,13 +207,13 @@ post '/report' => sub {
     $sth.execute(
         $report<build-passed> && $report<test-passed> ?? 'PASS' !! 'FAIL',
         $report<name>,
-        $report<metainfo><authority> // $report<metainfo><author> // $report<metainfo><auth>,
+        $report<metainfo><authority> || $report<metainfo><author> || $report<metainfo><auth>,
         $report<version>,
         $report<perl><compiler><version>,
         $report<vm><name>,
         $report<distro><name>,
-        $report<distro><release> // $report<distro><version>,
-        $report<kernel><arch>,
+        $report<distro><release> ne 'unknown' ?? $report<distro><release> !! $report<distro><version>,
+        $report<kernel><arch> ne 'unknown' ?? $report<kernel><arch> !! $report<kernel><bits>,
         request.body,
     );
 }
