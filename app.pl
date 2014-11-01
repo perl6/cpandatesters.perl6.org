@@ -13,6 +13,7 @@ my $dbh = DBIish.connect('mysql',
     :user<foo>, :password<bar>,
     :host<localhost>, :port<3306>, :database<cpandatesters>
 );
+my $host = '127.0.0.1';
 
 my &cell           := Template::Mojo.new(slurp 'views/cell.tt').code;
 my &dist           := Template::Mojo.new(slurp 'views/dist.tt').code;
@@ -218,6 +219,34 @@ post '/report' => sub {
     );
 }
 
-baile;
+
+my $app = Bailador::App.current;
+
+sub dispatch($env) {
+    $app.context.env = $env;
+
+    my ($r, $match) = $app.find_route($env);
+
+    if $r {
+        status 200;
+        if $match {
+            $app.response.content = $r.value.(|$match.list);
+        } else {
+            $app.response.content = $r.value.();
+        }
+    }
+
+    return $app.response;
+}
+
+sub dispatch-psgi($env) {
+    return dispatch($env).psgi;
+}
+
+given HTTP::Easy::PSGI.new(:$host, :port(80)) {
+    .app(&dispatch-psgi);
+    say "Entering the development dance floor: http://$host:80";
+    .run;
+}
 
 $dbh.disconnect();
