@@ -8,5 +8,6 @@ Note: "clickable" usually means "click to filter for said value" here.
 - [ ] precalc dist quality/graphs
 - [ ] send daily/weekly mails to dist authors, and perhaps also mails to rakudo devs in case too much modules failed in the last days
 - [ ] make the database tables available for download
+- [ ] implement Etags to allow caching of css, js and fonts
 
 ¹⁾ http://fontawesome.io/icon/ellipsis-v/ &lt;span class="fa fa-ellipsis-v">&lt;/span>
