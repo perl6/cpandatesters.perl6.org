@@ -127,7 +127,7 @@ get '/recent' => sub {
 
         $<distver>    = '0' if $<distver> eq '*';
         $<breadcrumb> = '/recent';
-        @reports.push: recent-line($/) unless $i++ > 100;
+        @reports.push: recent-line($/) unless ($i = $i + 1) > 100;
     }
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
