@@ -8,12 +8,16 @@ use DBIish;
 
 Bailador::import;
 
+# database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
     :user<cpandatesters>, :password<cpandatesters>,
     :host<localhost>, :port<5432>, :database<cpandatesters>
 );
-my $host = '127.0.0.1';
+
+# web service config
+my $host = '85.25.222.109';
+my $port = 3000;
 
 my &cell           := Template::Mojo.new(slurp 'views/cell.tt').code;
 my &dist           := Template::Mojo.new(slurp 'views/dist.tt').code;
@@ -243,9 +247,9 @@ sub dispatch-psgi($env) {
     return dispatch($env).psgi;
 }
 
-given HTTP::Easy::PSGI.new(:$host, :port(80)) {
+given HTTP::Easy::PSGI.new(:$host, :$port) {
     .app(&dispatch-psgi);
-    say "Entering the development dance floor: http://$host:80";
+    say "Entering the development dance floor: http://$host:$port";
     .run;
 }
 
