@@ -115,19 +115,19 @@ get /^ '/dist/' (.+) / => sub ($distname) {
 get '/recent' => sub {
     my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backend,osname,osver,arch
                             FROM reports
-                            ORDER BY id DESC
-                            LIMIT 100');
+                            ORDER BY id DESC');
     $sth.execute;
     my @reports;
     my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
     my %stats;
+    my int $i = 0;
     while $sth.fetchrow_hashref -> $/ {
         %stats{$<compver>}{$<osname>}{$<backend>}{$<grade>}++;
         @osnames.push: $<osname> unless $<osname> ~~ any @osnames;
 
         $<distver>    = '0' if $<distver> eq '*';
         $<breadcrumb> = '/recent';
-        @reports.push: recent-line($/)
+        @reports.push: recent-line($/) unless $i++ > 100;
     }
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
