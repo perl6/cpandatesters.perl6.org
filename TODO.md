@@ -10,5 +10,6 @@ Note: "clickable" usually means "click to filter for said value" here.
 - [ ] make the database tables available for download
 - [ ] implement Etags to allow caching of css, js and fonts
 - [ ] perhaps queue test reports that could not be sent but do not let panda die
+- [ ] show maintainer besides/instead author on distribution page
 
 ¹⁾ http://fontawesome.io/icon/ellipsis-v/ &lt;span class="fa fa-ellipsis-v">&lt;/span>
