@@ -163,7 +163,7 @@ get '/recent' => sub {
                 dist({
                     :stats( stats([@osnames.sort], $%stats, &cell) ),
                     :report-tables(
-                        '<h4>Lates 1000 reports</h4>' ~
+                        '<h4>Latest 1000 reports</h4>' ~
                         recent-table({ :report-lines(@reports.join("\n")) })
                     )
                 }),
