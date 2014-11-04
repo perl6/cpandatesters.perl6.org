@@ -56,7 +56,7 @@ get /^ '/dist/' (.+) / => sub ($distname) {
                             ORDER BY id DESC');
     $sth.execute($distname);
     my %reports;
-    my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
+    my @osnames = <linux mswin32 macosx netbsd openbsd freebsd solaris>;
     my %stats;
     while $sth.fetchrow_hashref -> $/ {
         %stats{$<compver>}{$<osname>}{$<backend>}{$<grade>}++;
@@ -118,7 +118,7 @@ get '/recent' => sub {
                             ORDER BY id DESC');
     $sth.execute;
     my @reports;
-    my @osnames = <linux mswin32 darwin netbsd openbsd freebsd solaris>;
+    my @osnames = <linux mswin32 macosx netbsd openbsd freebsd solaris>;
     my %stats;
     my int $i = 0;
     while $sth.fetchrow_hashref -> $/ {
