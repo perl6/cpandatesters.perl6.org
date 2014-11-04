@@ -127,7 +127,7 @@ get '/recent' => sub {
 
         $<distver>    = '0' if $<distver> eq '*';
         $<breadcrumb> = '/recent';
-        @reports.push: recent-line($/) unless ($i = $i + 1) > 100;
+        @reports.push: recent-line($/) unless ($i = $i + 1) > 1000;
     }
     for @osnames -> $osname {
         for %stats.keys -> $compver is copy {
@@ -163,7 +163,7 @@ get '/recent' => sub {
                 dist({
                     :stats( stats([@osnames.sort], $%stats, &cell) ),
                     :report-tables(
-                        '<h4>Top 100 reports</h4>' ~
+                        '<h4>Lates 1000 reports</h4>' ~
                         recent-table({ :report-lines(@reports.join("\n")) })
                     )
                 }),
