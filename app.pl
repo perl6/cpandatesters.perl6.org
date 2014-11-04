@@ -103,7 +103,7 @@ get /^ '/dist/' (.+) / => sub ($distname) {
     main({
             :breadcrumb(['Distributions' => '/dists', ~$distname]),
             :content( dist({
-                    :stats( stats([@osnames.sort], $%stats, &template) ),
+                    :stats( stats([@osnames.sort], $%stats, &cell) ),
                     :report-tables($reports)
                 }),
             )
@@ -161,7 +161,7 @@ get '/recent' => sub {
             :content(
                 '<h4>Code quality across operating system, compiler version and backend</h4>' ~
                 dist({
-                    :stats( stats([@osnames.sort], $%stats, &template) ),
+                    :stats( stats([@osnames.sort], $%stats, &cell) ),
                     :report-tables(
                         '<h4>Top 100 reports</h4>' ~
                         recent-table({ :report-lines(@reports.join("\n")) })

@@ -1,4 +1,4 @@
-% my ($osnames, $x, &template) = @_;
+% my ($osnames, $x, &cell) = @_;
 <thead>
     <tr>
         <th width="15%">Compiler version</th>
@@ -11,7 +11,7 @@
         do for $x.keys.sort({ Version.new($^b) cmp Version.new($^a)}) -> $compver {
             '<tr>
                 <td>' ~ $compver ~ '</td>
-                <td>' ~ $osnames.map({ template 'cell.tt', $x{$compver}{$_} }).join('</td><td>') ~ '</td>
+                <td>' ~ $osnames.map({ cell($x{$compver}{$_}) }).join('</td><td>') ~ '</td>
             </tr>';
         }
     %>
