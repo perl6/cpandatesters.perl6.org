@@ -19,6 +19,11 @@ my $dbh = DBIish.connect('Pg',
 my $host = '85.25.222.109';
 my $port = 3000;
 
+# Allow client side caching of file in css/, js/ and fonts/
+my $md5fh = pipe("md5sum css/* js/* fonts/*", :r);
+my %etags = $md5fh.lines.grep(*.Bool).map({ [R=>] .split("  ") });
+$md5fh.close;
+
 my &cell           := Template::Mojo.new(slurp 'views/cell.tt').code;
 my &dist           := Template::Mojo.new(slurp 'views/dist.tt').code;
 my &dist-line      := Template::Mojo.new(slurp 'views/dist-line.tt').code;
@@ -197,10 +202,27 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
     }
 }
 
-get /^ '/' ([ css | js | fonts ] '/' .+) / => sub ($file is copy) {
-    content_type 'text/css';
+my @static-files = %etags.keys;
+get /^ \/ (@static-files) [ '?'.* ]? / => sub ($file is copy) {
     $file.=Str;
-    $file ~~ s/ '?'.* //;
+
+    if %etags{$file} -> $etag {
+        header('Etag', $etag);
+
+        if request.env<HTTP_IF_NONE_MATCH> && request.env<HTTP_IF_NONE_MATCH> eq $etag {
+            status 304;
+            header('Cache-Control', 'private');
+            header('Pragma', '');
+            return ''
+        }
+        else {
+            header('Cache-Control', 'private');
+            header('Pragma', '');
+        }
+    }
+
+    content_type 'text/css';
+
     return $file.IO.slurp(:enc<ascii>) if $file.IO.f;
 }
 
