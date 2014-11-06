@@ -37,14 +37,21 @@ my &report-table   := Template::Mojo.new(slurp 'views/report-table.tt').code;
 my &stats          := Template::Mojo.new(slurp 'views/stats.tt').code;
 
 get '/' | '/dists' => sub {
-    # TODO create a table `dists` and precalc its PASS ratio in a cronjob
-    my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
-                            FROM reports
-                            ORDER BY distname');
+    my $sth = $dbh.prepare('SELECT *
+                            FROM distquality');
+    $sth.execute;
+    my %dist-quality;
+    while $sth.fetchrow_hashref -> $/ {
+        %dist-quality{$<distname>}{$<backend>}{$_} = $/{$_} for <pass na fail>
+    }
+
+    $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
+                         FROM reports
+                         ORDER BY distname');
     $sth.execute;
     my $dist-lines = '';
     while $sth.fetchrow_hashref -> $/ {
-        $dist-lines ~= dist-line($/)
+        $dist-lines ~= dist-line($/, %dist-quality{$<distname>})
     }
     main({
             :breadcrumb(['Distributions']),
