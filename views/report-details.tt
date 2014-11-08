@@ -26,10 +26,18 @@
 </div>
 <br />
 <div class="clearfix"></div>
-<h4><span class="label label-<%= $raw<build-passed> ?? 'success' !! 'danger' %>"><%= $raw<build-passed> ?? 'PASS' !! 'FAIL' %></span> Build stage</h4>
+<h4><span class="label label-<%=
+    !$raw<build-passed>.defined ?? 'warning">NA'  !!
+    !$raw<build-passed>         ?? 'danger">FAIL' !!
+                                   'success">PASS'
+%></span> Build stage</h4>
 <pre><%= $raw<build-output> // '' %></pre>
 <br />
-<h4><span class="label label-<%= $raw<test-passed> ?? 'success' !! 'danger' %>"><%= $raw<test-passed> ?? 'PASS' !! 'FAIL' %></span> Test stage</h4>
+<h4><span class="label label-<%=
+    !$raw<test-passed>.defined ?? 'warning">NOTESTS' !!
+    !$raw<test-passed>         ?? 'danger">FAIL'     !!
+                                  'success">PASS'
+%></span> Test stage</h4>
 <pre><%= $raw<test-output> // '' %></pre>
 <br />
 <h4><span class="fa fa-info"></span> Environment</h4>
