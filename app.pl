@@ -239,7 +239,7 @@ post '/report' => sub {
                                (grade,distname,distauth,distver,compver,backend,osname,osver,arch,"raw")
                                VALUES (?,?,?,?,?,?,?,?,?,?)');
     $sth.execute(
-        $report<build-passed> && $report<test-passed> ?? 'PASS' !! 'FAIL',
+        do given $report<build-passed> && $report<test-passed> { when !.defined { 'NA' }; when 1 { 'PASS' }; when 0 { 'FAIL' } },
         $report<name>,
         $report<metainfo><authority> || $report<metainfo><author> || $report<metainfo><auth>,
         $report<version>,
