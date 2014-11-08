@@ -82,8 +82,7 @@ get /^ '/dist/' (.+) / => sub ($distname) {
         for %stats.keys -> $compver is copy {
             for <moar jvm parrot> -> $backend {
                 my $all = [+] %stats{$compver}{$osname}{$backend}.values;
-                for <PASS FAIL NA NOTESTS> -> $grade is copy {
-                    $grade = 'NA' if $grade eq 'NOTESTS';
+                for <PASS FAIL NA NOTESTS> -> $grade {
                     if %stats{$compver}{$osname}{$backend}{$grade} {
                         %stats{$compver}{$osname}{$backend}{$grade} /= $all / 100;
                         if 0 < %stats{$compver}{$osname}{$backend}{$grade} < 2 {
@@ -146,8 +145,7 @@ get '/recent' => sub {
         for %stats.keys -> $compver is copy {
             for <moar jvm parrot> -> $backend {
                 my $all = [+] %stats{$compver}{$osname}{$backend}.values;
-                for <PASS FAIL NA NOTESTS> -> $grade is copy {
-                    $grade = 'NA' if $grade eq 'NOTESTS';
+                for <PASS FAIL NA NOTESTS> -> $grade {
                     if %stats{$compver}{$osname}{$backend}{$grade} {
                         %stats{$compver}{$osname}{$backend}{$grade} /= $all / 100;
                         if 0 < %stats{$compver}{$osname}{$backend}{$grade} < 2 {
