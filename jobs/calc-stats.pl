@@ -33,7 +33,8 @@ for @distnames -> $distname {
     my %compver-count;
     while $sth.fetchrow_hashref -> $/ {
         %compver-count{$<distver>}++;
-        $<distver> = '0' if $<distver> eq '*';
+        $<distver> = '0'  if $<distver> eq '*';
+        $<grade>   = 'NA' if $<grade>   eq 'NOTESTS';
         %reports{$<distver>}{$<backend>}{$<grade>}++;
     }
 
