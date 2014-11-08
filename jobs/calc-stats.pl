@@ -44,8 +44,8 @@ for @distnames -> $distname {
                 %stats{$backend}{$grade} += %reports{$distver}{$backend}{$grade} || 0;
             }
             $report-count += [+] %reports{$distver}{$backend}.values;
-            last if $report-count > 20;
         }
+        last if $report-count > 20;
     }
 
     for <moar jvm parrot> -> $backend {
