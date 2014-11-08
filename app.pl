@@ -238,8 +238,13 @@ post '/report' => sub {
     my $sth    = $dbh.prepare('INSERT INTO reports
                                (grade,distname,distauth,distver,compver,backend,osname,osver,arch,"raw")
                                VALUES (?,?,?,?,?,?,?,?,?,?)');
+    my $grade  = !$report<build-passed>.defined ?? 'NA'
+              !! !$report<build-passed>         ?? 'FAIL'
+              !! !$report<test-passed>.defined  ?? 'NOTESTS'
+              !! !$report<test-passed>          ?? 'FAIL'
+                                                !! 'PASS';
     $sth.execute(
-        do given $report<build-passed> && $report<test-passed> { when !.defined { 'NA' }; when 1 { 'PASS' }; when 0 { 'FAIL' } },
+        $grade,
         $report<name>,
         $report<metainfo><authority> || $report<metainfo><author> || $report<metainfo><auth>,
         $report<version>,
