@@ -6,11 +6,11 @@
 </div>
 <div class="progress" style="margin-bottom: 1px; height: 10px; border-radius: 0;" title="JVM">
     <div class="progress-bar progress-bar-success" style="width: <%= $x<jvm><PASS> %>%"></div>
-    <div class="progress-bar progress-bar-warning" style="width: <%= $x<jvm><NA> + $x<moar><NOTESTS> %>%"></div>
+    <div class="progress-bar progress-bar-warning" style="width: <%= $x<jvm><NA> + $x<jvm><NOTESTS> %>%"></div>
     <div class="progress-bar progress-bar-danger"  style="width: <%= $x<jvm><FAIL> %>%"></div>
 </div>
 <div class="progress" style="margin-bottom: 1px; height: 10px; border-top-right-radius: 0; border-top-left-radius: 0;" title="Parrot">
     <div class="progress-bar progress-bar-success" style="width: <%= $x<parrot><PASS> %>%"></div>
-    <div class="progress-bar progress-bar-warning" style="width: <%= $x<parrot><NA> + $x<moar><NOTESTS> %>%"></div>
+    <div class="progress-bar progress-bar-warning" style="width: <%= $x<parrot><NA> + $x<parrot><NOTESTS> %>%"></div>
     <div class="progress-bar progress-bar-danger"  style="width: <%= $x<parrot><FAIL> %>%"></div>
 </div>
