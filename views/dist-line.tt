@@ -18,6 +18,6 @@
         </div>
     </td>
     <td><%= $x<distname> %></td>
-    <td><%= $x<distauth> || '&lt;unkown&gt;' %></td>
+    <td><%= $x<distauth> || '&lt;unknown&gt;' %></td>
     <td></td>
 </tr>
