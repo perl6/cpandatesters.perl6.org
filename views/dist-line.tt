@@ -1,17 +1,18 @@
-% my ($x, $q) = @_;
-<tr class="clickableRow" href="/dist/<%= $x<distname> %>">
+% my ($x, $q, $url)  = @_;
+% use URI::Encode;
+<tr class="clickableRow" href="/<%= $url %>">
     <td>
-        <div class="progress" style="margin-bottom: 1px; height: 10px; border-bottom-right-radius: 0; border-bottom-left-radius: 0;" title="MoarVM">
+        <div class="progress progress-top" title="MoarVM">
             <div class="progress-bar progress-bar-success" style="width: <%= $q<moar><pass> %>%"></div>
             <div class="progress-bar progress-bar-warning" style="width: <%= $q<moar><na>   %>%"></div>
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<moar><fail> %>%"></div>
         </div>
-        <div class="progress" style="margin-bottom: 1px; height: 10px; border-radius: 0;" title="JVM">
+        <div class="progress progress-middle" title="JVM">
             <div class="progress-bar progress-bar-success" style="width: <%= $q<jvm><pass> %>%"></div>
             <div class="progress-bar progress-bar-warning" style="width: <%= $q<jvm><na>   %>%"></div>
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<jvm><fail> %>%"></div>
         </div>
-        <div class="progress" style="margin-bottom: 1px; height: 10px; border-top-right-radius: 0; border-top-left-radius: 0;" title="Parrot">
+        <div class="progress progress-bottom" title="Parrot">
             <div class="progress-bar progress-bar-success" style="width: <%= $q<parrot><pass> %>%"></div>
             <div class="progress-bar progress-bar-warning" style="width: <%= $q<parrot><na>   %>%"></div>
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<parrot><fail> %>%"></div>

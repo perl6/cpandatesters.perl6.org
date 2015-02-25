@@ -9,29 +9,45 @@ use DBIish;
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
     :user<cpandatesters>, :password<cpandatesters>,
-    :host<localhost>, :port<5432>, :database<cpandatesters>
+    :host<localhost>, :port<5432>, :dbname<cpandatesters>,
+    :RaiseError,
 );
 
+my $mark_report    = $dbh.prepare('UPDATE reports
+                                   SET "calc-stats" = FALSE
+                                   WHERE id = ?');
+my $dists_todo     = $dbh.prepare('SELECT DISTINCT distname, distauth
+                                   FROM reports
+                                   WHERE "calc-stats"
+                                   LIMIT 100');
+my $insert_quality = $dbh.prepare('INSERT INTO distquality
+                                   (distname,distauth,backend,pass,na,fail)
+                                   VALUES (?,?,?,?,?,?)');
+my $update_quality = $dbh.prepare('UPDATE distquality
+                                   SET backend=?,pass=?,na=?,fail=?
+                                   WHERE distname=?
+                                     AND distauth=?
+                                     AND backend=?
+                                   RETURNING id');
+my $select_reports = $dbh.prepare('SELECT id,grade,distname,distver,backend
+                                   FROM reports
+                                   WHERE distname=? AND distauth=?
+                                   ORDER BY id DESC');
+
 my @distnames;
-# TODO create a table `dists` and precalc its PASS ratio in a cronjob
-my $sth = $dbh.prepare('SELECT DISTINCT distname
-                        FROM reports
-                        ORDER BY distname');
-$sth.execute;
-while $sth.fetchrow_hashref -> $/ {
-    @distnames.push: $<distname>
+$dists_todo.execute;
+while $dists_todo.fetchrow_hashref -> $/ {
+    @distnames.push: $<distname>, $<distauth>
 }
 
-for @distnames -> $distname {
-    my $sth = $dbh.prepare('SELECT id,grade,distname,distver,backend
-                            FROM reports
-                            WHERE distname=?
-                            ORDER BY id DESC');
-    $sth.execute($distname);
+for @distnames -> $distname, $distauth {
     my %reports;
     my %stats;
     my %compver-count;
-    while $sth.fetchrow_hashref -> $/ {
+    my @report-ids;
+    $select_reports.execute($distname, $distauth);
+    while $select_reports.fetchrow_hashref -> $/ {
+        @report-ids.push: $<id>;
         %compver-count{$<distver>}++;
         $<distver> = '0'  if $<distver> eq '*';
         $<grade>   = 'NA' if $<grade>   eq 'NOTESTS';
@@ -72,19 +88,14 @@ for @distnames -> $distname {
         }
     }
 
-    $sth = $dbh.prepare('INSERT INTO distquality
-                         (distname,backend,pass,na,fail)
-                         VALUES (?,?,?,?,?)');
     for <moar jvm parrot> {
-        unless try $sth.execute($distname, $_, %stats{$_}<PASS>, %stats{$_}<NA>, %stats{$_}<FAIL>) {
-            my $sth = $dbh.prepare('UPDATE distquality
-                                 SET backend=?,pass=?,na=?,fail=?
-                                 WHERE distname=?
-                                   AND backend=?
-                                 RETURNING id');
-            $sth.execute($_, %stats{$_}<PASS>, %stats{$_}<NA>, %stats{$_}<FAIL>, $distname, $_)
+        unless try $insert_quality.execute($distname, $distauth, $_, %stats{$_}<PASS>, %stats{$_}<NA>, %stats{$_}<FAIL>) {
+            $update_quality.execute($_, %stats{$_}<PASS>, %stats{$_}<NA>, %stats{$_}<FAIL>, $distname, $distauth, $_)
         }
     }
+
+    # XXX can we do `WHERE id IN (?)` and pass a list to .execute?
+    $mark_report.execute($_) for @report-ids;
 }
 
 $dbh.disconnect();

@@ -1,4 +1,5 @@
 % my ($x) = @_;
+<br />
 <table class="table table-bordered table-striped table-condensed">
     <thead>
         <tr>

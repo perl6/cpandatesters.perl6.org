@@ -1,0 +1,16 @@
+% my ($l, @l) = @_;
+<div class="center">
+    <div class="btn-toolbar">
+        <%= do for @l -> $a, $b, $c {
+            sprintf('<div class="btn-group">
+                        <a href="/dists-%s.html" class="btn btn-%s">%s</a>
+                        <a href="/dists-%s.html" class="btn btn-%s">%s</a>
+                        <a href="/dists-%s.html" class="btn btn-%s">%s</a>
+                    </div>',
+                $a,                       $a eq $l ?? 'primary' !! 'default', $a,
+                $b,                       $b eq $l ?? 'primary' !! 'default', $b,
+                $c eq '#' ?? '%23' !! $c, $c eq $l ?? 'primary' !! 'default', $c)
+            }
+        %>
+    </div>
+</div>
