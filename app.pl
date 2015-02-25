@@ -56,8 +56,7 @@ get '/' | '/dists' => sub {
     main({
             :breadcrumb(['Distributions']),
             :content( dists({ :$dist-lines }) )
-        },
-        &request
+        }
     )
 }
 
@@ -119,8 +118,7 @@ get /^ '/dist/' (.+) / => sub ($distname) {
                     :report-tables($reports)
                 }),
             )
-        },
-        &request
+        }
     )
 }
 
@@ -180,8 +178,7 @@ get '/recent' => sub {
                     )
                 }),
             ),
-        },
-        &request
+        }
     )
 }
 
@@ -201,7 +198,7 @@ get / '/report/' (.+) '/' (\d+) / => sub ($path, $id) {
                 $breadcrumb.unshift: 'Most recent reports' => '/recent'
             }
         }
-        main({ :$breadcrumb, :content( report-details($r, from-json $r<raw>) ) }, &request)
+        main({ :$breadcrumb, :content( report-details($r, from-json $r<raw>) ) })
     }
     else {
         status 404;
