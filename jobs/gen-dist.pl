@@ -103,7 +103,7 @@ for @name-auth -> $distname, $distauth is copy {
     "$path/{encode_for_filesystem($distauth)}.html".IO.spurt: main({
             :breadcrumb(['Distributions' => "/dists-$dist-letter.html", ~$distname]),
             :$content,
-            :path(''),
+            :path("/dists-$dist-letter.html"),
         }
     );
 
@@ -117,7 +117,7 @@ for @name-auth -> $distname, $distauth is copy {
     "$path/{encode_for_filesystem($distname)}.html".IO.spurt: main({
             :breadcrumb(['Authors' => "/auths-$auth-letter.html", ~$distname]),
             :$content,
-            :path(''),
+            :path("/auths-$auth-letter.html"),
         }
     );
 }
