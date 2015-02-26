@@ -41,6 +41,7 @@ $sth.execute;
 my %dist-lines = ('A' .. 'Z', '#') »=>» '';
 while $sth.fetchrow_hashref -> $/ {
     $<distauth>   ||= '<unknown>';
+    $<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
     my $dist-letter = $<distname>.Str.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
@@ -68,6 +69,7 @@ $sth.execute;
 my %auth-lines = ('A' .. 'Z', '#') »=>» '';
 while $sth.fetchrow_hashref -> $/ {
     $<distauth>   ||= '<unknown>';
+    $<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
     my $auth-letter = $<distauth>.Str.substr(0, 1).uc;
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
