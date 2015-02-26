@@ -26,7 +26,7 @@ my $todo = $dbh.prepare('SELECT *
                          LIMIT 100');
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
-    "html/report/$r<id>.html".IO.spurt: main({
+    "html/reports/$r<id>.html".IO.spurt: main({
         :breadcrumb(["Report $r<id>"]),
         :content( report-details($r, from-json $r<raw>) ),
         :path(''),
