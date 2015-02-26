@@ -99,6 +99,7 @@ for @name-auth -> $distname, $distauth {
     mkdir $path unless $path.IO.d;
 
     my $_distauth = $distauth || '<unknown>';
+    $_distauth   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
     $path = "$path/" ~ encode_punycode($distname);
     mkdir $path unless $path.IO.d;
