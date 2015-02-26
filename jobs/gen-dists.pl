@@ -39,23 +39,17 @@ my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
                         ORDER BY distname');
 $sth.execute;
 my %dist-lines = ('A' .. 'Z', '#') »=>» '';
-my %auth-lines = ('A' .. 'Z', '#') »=>» '';
 while $sth.fetchrow_hashref -> $/ {
     $<distauth>   ||= '<unknown>';
 
     my $dist-letter = $<distname>.Str.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
 
-    my $auth-letter = $<distauth>.Str.substr(0, 1).uc;
-    $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
-
     my $distname    = encode_for_filesystem($<distname>);
     my $distauth    = encode_for_filesystem($<distauth>);
 
     %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
         "dist/&uri_encode($dist-letter)/&uri_encode($distname)/&uri_encode($distauth).html");
-    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
-        "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
 }
 
 for %dist-lines.kv -> $letter, $dist-lines {
@@ -65,6 +59,23 @@ for %dist-lines.kv -> $letter, $dist-lines {
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
         :path("/dists-&uri_encode($letter).html"),
     })
+}
+
+my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
+                        FROM distquality
+                        ORDER BY distauth');
+$sth.execute;
+my %auth-lines = ('A' .. 'Z', '#') »=>» '';
+while $sth.fetchrow_hashref -> $/ {
+    $<distauth>   ||= '<unknown>';
+
+    my $auth-letter = $<distauth>.Str.substr(0, 1).uc;
+    $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
+
+    my $distauth    = encode_for_filesystem($<distauth>);
+
+    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
+        "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
 }
 
 for %auth-lines.kv -> $letter, $dist-lines {
@@ -77,7 +88,7 @@ for %auth-lines.kv -> $letter, $dist-lines {
 }
 
 # XXX can we do `WHERE id IN (?)` and pass a list to .execute?
-#~ $mark.execute($_) for @gen-dists;
+$mark.execute($_) for @gen-dists;
 
 sub encode_for_filesystem($str) {
     $str.subst(/(^.)? <[\/\\+]>/, '+' ~ *.ord, :g)
