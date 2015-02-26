@@ -40,5 +40,5 @@
 %></span> Test stage</h4>
 <pre><%= $raw<test-output> // '' %></pre>
 <br />
-<h4><span class="fa fa-info"></span> Environment</h4>
+<h4>Environment</h4>
 <pre><%= $x<raw> %></pre>
