@@ -24,7 +24,7 @@ my $insert_quality = $dbh.prepare('INSERT INTO distquality
                                    (distname,distauth,backend,pass,na,fail)
                                    VALUES (?,?,?,?,?,?)');
 my $update_quality = $dbh.prepare('UPDATE distquality
-                                   SET backend=?,pass=?,na=?,fail=?
+                                   SET backend=?,pass=?,na=?,fail=?,"gen-dist"=TRUE
                                    WHERE distname=?
                                      AND distauth=?
                                      AND backend=?

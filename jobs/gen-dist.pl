@@ -22,16 +22,20 @@ my &report-table := Template::Mojo.new(slurp 'views/report-table.tt').code;
 my &stats        := Template::Mojo.new(slurp 'views/stats.tt').code;
 my &main         := Template::Mojo.new(slurp 'views/main.tt').code;
 
-# create and query an update queue
-my $sth = $dbh.prepare('SELECT DISTINCT distname,distauth
-                        FROM reports');
-$sth.execute();
+my $todo = $dbh.prepare('SELECT DISTINCT distname,distauth
+                         FROM distquality
+                         WHERE "gen-dist"');
+my $mark = $dbh.prepare('UPDATE distquality
+                         SET "gen-dist"=FALSE
+                         WHERE distname=?
+                           AND distauth=?');
+$todo.execute();
 my @name-auth;
-while $sth.fetchrow_hashref -> $/ {
+while $todo.fetchrow_hashref -> $/ {
     @name-auth.push: $<distname>, $<distauth>
 }
 
-for @name-auth -> $distname, $distauth is copy {
+for @name-auth -> $distname, $distauth {
     my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backend,osname,osver,arch
                             FROM reports
                             WHERE distname=? AND distauth=?
@@ -93,11 +97,11 @@ for @name-auth -> $distname, $distauth is copy {
     my $path        = "html/dist/$dist-letter";
     mkdir $path unless $path.IO.d;
 
-    $distauth ||= '<unknown>';
+    my $_distauth = $distauth || '<unknown>';
 
     $path = "$path/" ~ encode_for_filesystem($distname);
     mkdir $path unless $path.IO.d;
-    "$path/{encode_for_filesystem($distauth)}.html".IO.spurt: main({
+    "$path/{encode_for_filesystem($_distauth)}.html".IO.spurt: main({
             :breadcrumb(['Distributions' => "/dists-&uri_encode($dist-letter).html", ~$distname]),
             :$content,
             :path("/dists-&uri_encode($dist-letter).html"),
@@ -109,7 +113,7 @@ for @name-auth -> $distname, $distauth is copy {
     $path           = "html/auth/$auth-letter";
     mkdir $path unless $path.IO.d;
 
-    $path       = "$path/" ~ encode_for_filesystem($distauth);
+    $path       = "$path/" ~ encode_for_filesystem($_distauth);
     mkdir $path unless $path.IO.d;
     "$path/{encode_for_filesystem($distname)}.html".IO.spurt: main({
             :breadcrumb(['Authors' => "/auths-&uri_encode($auth-letter).html", ~$distname]),
@@ -117,6 +121,8 @@ for @name-auth -> $distname, $distauth is copy {
             :path("/auths-&uri_encode($auth-letter).html"),
         }
     );
+
+    $mark.execute($distname, $distauth);
 }
 
 sub encode_for_filesystem($str) {
