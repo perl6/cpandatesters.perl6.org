@@ -6,6 +6,7 @@ use lib 'lib';
 use DBIish;
 use Template::Mojo;
 use URI::Encode;
+use IDNA::Punycode;
 
 # database configuration
 DBIish.install_driver('Pg');
@@ -99,9 +100,9 @@ for @name-auth -> $distname, $distauth {
 
     my $_distauth = $distauth || '<unknown>';
 
-    $path = "$path/" ~ encode_for_filesystem($distname);
+    $path = "$path/" ~ encode_punycode($distname);
     mkdir $path unless $path.IO.d;
-    "$path/{encode_for_filesystem($_distauth)}.html".IO.spurt: main({
+    "$path/{encode_punycode($_distauth)}.html".IO.spurt: main({
             :breadcrumb(['Distributions' => "/dists-&uri_encode($dist-letter).html", ~$distname]),
             :$content,
             :path("/dists-&uri_encode($dist-letter).html"),
@@ -113,9 +114,9 @@ for @name-auth -> $distname, $distauth {
     $path           = "html/auth/$auth-letter";
     mkdir $path unless $path.IO.d;
 
-    $path       = "$path/" ~ encode_for_filesystem($_distauth);
+    $path       = "$path/" ~ encode_punycode($_distauth);
     mkdir $path unless $path.IO.d;
-    "$path/{encode_for_filesystem($distname)}.html".IO.spurt: main({
+    "$path/{encode_punycode($distname)}.html".IO.spurt: main({
             :breadcrumb(['Authors' => "/auths-&uri_encode($auth-letter).html", ~$distname]),
             :$content,
             :path("/auths-&uri_encode($auth-letter).html"),
@@ -123,10 +124,6 @@ for @name-auth -> $distname, $distauth {
     );
 
     $mark.execute($distname, $distauth);
-}
-
-sub encode_for_filesystem($str) {
-    $str.subst(/(^.)? <[\/\\+]>/, '+' ~ *.ord, :g)
 }
 
 $dbh.disconnect();

@@ -6,6 +6,7 @@ use lib 'lib';
 use DBIish;
 use Template::Mojo;
 use URI::Encode;
+use IDNA::Punycode;
 
 # database configuration
 DBIish.install_driver('Pg');
@@ -47,11 +48,8 @@ while $sth.fetchrow_hashref -> $m {
     my $dist-letter = $m<distname>.Str.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
 
-    my $distname    = encode_for_filesystem($m<distname>);
-    my $distauth    = encode_for_filesystem($m<distauth>);
-
     %dist-lines{$dist-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
-        "dist/&uri_encode($dist-letter)/&uri_encode($distname)/&uri_encode($distauth).html");
+        "dist/&uri_encode($dist-letter)/&encode_punycode($distname)/&encode_punycode($distauth).html");
 }
 
 for %dist-lines.kv -> $letter, $dist-lines {
@@ -59,7 +57,7 @@ for %dist-lines.kv -> $letter, $dist-lines {
     "html/dists-$letter.html".IO.spurt: main({
         :breadcrumb(['Distributions']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
-        :path("/dists-&uri_encode($letter).html"),
+        :path("/dists-&encode_punycode($letter).html"),
     })
 }
 
@@ -75,11 +73,8 @@ while $sth.fetchrow_hashref -> $m {
     my $auth-letter = $m<distauth>.Str.substr(0, 1).uc;
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
 
-    my $distname    = encode_for_filesystem($m<distname>);
-    my $distauth    = encode_for_filesystem($m<distauth>);
-
     %auth-lines{$auth-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
-        "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
+        "auth/&uri_encode($auth-letter)/&encode_punycode($distauth)/&encode_punycode($distname).html");
 }
 
 for %auth-lines.kv -> $letter, $dist-lines {
@@ -87,15 +82,11 @@ for %auth-lines.kv -> $letter, $dist-lines {
     "html/auths-$letter.html".IO.spurt: main({
         :breadcrumb(['Authors']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
-        :path("/auths-&uri_encode($letter).html"),
+        :path("/auths-&encode_punycode($letter).html"),
     })
 }
 
 # XXX can we do `WHERE id IN (?)` and pass a list to .execute?
 $mark.execute($_) for @gen-dists;
-
-sub encode_for_filesystem($str) {
-    $str.subst(/(^.)? <[\/\\+]>/, '+' ~ *.ord, :g)
-}
 
 $dbh.disconnect();
