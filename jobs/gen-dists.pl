@@ -49,7 +49,7 @@ while $sth.fetchrow_hashref -> $m {
     my $distname    = encode_for_filesystem($m<distname>);
     my $distauth    = encode_for_filesystem($m<distauth>);
 
-    %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$m<distauth>}{$m<distname>},
+    %dist-lines{$dist-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
         "dist/&uri_encode($dist-letter)/&uri_encode($distname)/&uri_encode($distauth).html");
 }
 
@@ -63,8 +63,8 @@ for %dist-lines.kv -> $letter, $dist-lines {
 }
 
 $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
-                        FROM distquality
-                        ORDER BY distauth');
+                     FROM distquality
+                     ORDER BY distauth');
 $sth.execute;
 my %auth-lines = ('A' .. 'Z', '#') »=>» '';
 while $sth.fetchrow_hashref -> $m {
@@ -77,7 +77,7 @@ while $sth.fetchrow_hashref -> $m {
     my $distname    = encode_for_filesystem($m<distname>);
     my $distauth    = encode_for_filesystem($m<distauth>);
 
-    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$m<distauth>}{$m<distname>},
+    %auth-lines{$auth-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
         "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
 }
 
