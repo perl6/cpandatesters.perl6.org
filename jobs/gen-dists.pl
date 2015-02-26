@@ -29,9 +29,10 @@ my $todo = $dbh.prepare('SELECT *
 my %dist-quality;
 my @gen-dists;
 $todo.execute;
-while $todo.fetchrow_hashref -> $/ {
-    %dist-quality{$<distauth> || '<unknown>'}{$<distname>}{$<backend>}{$_} = $/{$_} for <pass na fail>;
-    @gen-dists.push: $<id>;
+while $todo.fetchrow_hashref -> $m {
+    $m<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //; #'
+    %dist-quality{$m<distauth> || '<unknown>'}{$m<distname>}{$m<backend>}{$_} = $m{$_} for <pass na fail>;
+    @gen-dists.push: $m<id>;
 }
 
 my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
@@ -82,7 +83,7 @@ while $sth.fetchrow_hashref -> $m {
 }
 
 for %auth-lines.kv -> $letter, $dist-lines {
-    my $dist-letters = dist-letters($letter, 'auths', %dist-lines.keys);
+    my $dist-letters = dist-letters($letter, 'auths', %auth-lines.keys);
     "html/auths-$letter.html".IO.spurt: main({
         :breadcrumb(['Authors']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
