@@ -110,7 +110,7 @@ for @name-auth -> $distname, $distauth {
         }
     );
 
-    my $auth-letter = $distauth.substr(0, 1).uc;
+    my $auth-letter = $_distauth.substr(0, 1).uc;
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
     $path           = "html/auth/$auth-letter";
     mkdir $path unless $path.IO.d;
