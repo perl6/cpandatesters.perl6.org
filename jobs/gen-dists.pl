@@ -39,17 +39,17 @@ my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
                         ORDER BY distname');
 $sth.execute;
 my %dist-lines = ('A' .. 'Z', '#') »=>» '';
-while $sth.fetchrow_hashref -> $/ {
-    $<distauth>   ||= '<unknown>';
-    $<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
+while $sth.fetchrow_hashref -> $m {
+    $m<distauth>   ||= '<unknown>';
+    $m<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
-    my $dist-letter = $<distname>.Str.substr(0, 1).uc;
+    my $dist-letter = $m<distname>.Str.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
 
-    my $distname    = encode_for_filesystem($<distname>);
-    my $distauth    = encode_for_filesystem($<distauth>);
+    my $distname    = encode_for_filesystem($m<distname>);
+    my $distauth    = encode_for_filesystem($m<distauth>);
 
-    %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
+    %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$m<distauth>}{$m<distname>},
         "dist/&uri_encode($dist-letter)/&uri_encode($distname)/&uri_encode($distauth).html");
 }
 
@@ -62,22 +62,22 @@ for %dist-lines.kv -> $letter, $dist-lines {
     })
 }
 
-my $sth = $dbh.prepare('SELECT DISTINCT distname, distauth
+$sth = $dbh.prepare('SELECT DISTINCT distname, distauth
                         FROM distquality
                         ORDER BY distauth');
 $sth.execute;
 my %auth-lines = ('A' .. 'Z', '#') »=>» '';
-while $sth.fetchrow_hashref -> $/ {
-    $<distauth>   ||= '<unknown>';
-    $<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
+while $sth.fetchrow_hashref -> $m {
+    $m<distauth>   ||= '<unknown>';
+    $m<distauth>   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
-    my $auth-letter = $<distauth>.Str.substr(0, 1).uc;
+    my $auth-letter = $m<distauth>.Str.substr(0, 1).uc;
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
 
-    my $distname    = encode_for_filesystem($<distname>);
-    my $distauth    = encode_for_filesystem($<distauth>);
+    my $distname    = encode_for_filesystem($m<distname>);
+    my $distauth    = encode_for_filesystem($m<distauth>);
 
-    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
+    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$m<distauth>}{$m<distname>},
         "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
 }
 
