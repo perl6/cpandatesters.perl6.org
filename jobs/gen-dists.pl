@@ -52,8 +52,10 @@ while $sth.fetchrow_hashref -> $/ {
     my $distname    = encode_for_filesystem($<distname>);
     my $distauth    = encode_for_filesystem($<distauth>);
 
-    %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>}, "dist/$dist-letter/$distname/$distauth.html");
-    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>}, "auth/$auth-letter/$distauth/$distname.html");
+    %dist-lines{$dist-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
+        "dist/&uri_encode($dist-letter)/&uri_encode($distname)/&uri_encode($distauth).html");
+    %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
+        "auth/&uri_encode($auth-letter)/&uri_encode($distauth)/&uri_encode($distname).html");
 }
 
 for %dist-lines.kv -> $letter, $dist-lines {
@@ -61,7 +63,7 @@ for %dist-lines.kv -> $letter, $dist-lines {
     "html/dists-$letter.html".IO.spurt: main({
         :breadcrumb(['Distributions']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
-        :path("/dists-$letter.html"),
+        :path("/dists-&uri_encode($letter).html"),
     })
 }
 
@@ -70,7 +72,7 @@ for %auth-lines.kv -> $letter, $dist-lines {
     "html/auths-$letter.html".IO.spurt: main({
         :breadcrumb(['Authors']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
-        :path("/auths-$letter.html"),
+        :path("/auths-&uri_encode($letter).html"),
     })
 }
 

@@ -101,9 +101,9 @@ for @name-auth -> $distname, $distauth is copy {
     $path = "$path/" ~ encode_for_filesystem($distname);
     mkdir $path unless $path.IO.d;
     "$path/{encode_for_filesystem($distauth)}.html".IO.spurt: main({
-            :breadcrumb(['Distributions' => "/dists-$dist-letter.html", ~$distname]),
+            :breadcrumb(['Distributions' => "/dists-&uri_encode($dist-letter).html", ~$distname]),
             :$content,
-            :path("/dists-$dist-letter.html"),
+            :path("/dists-&uri_encode($dist-letter).html"),
         }
     );
 
@@ -115,9 +115,9 @@ for @name-auth -> $distname, $distauth is copy {
     $path       = "$path/" ~ encode_for_filesystem($distauth);
     mkdir $path unless $path.IO.d;
     "$path/{encode_for_filesystem($distname)}.html".IO.spurt: main({
-            :breadcrumb(['Authors' => "/auths-$auth-letter.html", ~$distname]),
+            :breadcrumb(['Authors' => "/auths-&uri_encode($auth-letter).html", ~$distname]),
             :$content,
-            :path("/auths-$auth-letter.html"),
+            :path("/auths-&uri_encode($auth-letter).html"),
         }
     );
 }

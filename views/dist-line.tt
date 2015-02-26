@@ -1,5 +1,4 @@
 % my ($x, $q, $url)  = @_;
-% use URI::Encode;
 <tr class="clickableRow" href="/<%= $url %>">
     <td>
         <div class="progress progress-top" title="MoarVM">
