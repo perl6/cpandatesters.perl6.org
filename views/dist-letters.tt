@@ -1,4 +1,4 @@
-% my ($l, @l, $p) = @_;
+% my ($l, $p, @l) = @_;
 <div class="center">
     <div class="btn-toolbar">
         <%= do for @l -> $a, $b, $c {

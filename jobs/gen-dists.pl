@@ -57,7 +57,7 @@ while $sth.fetchrow_hashref -> $/ {
 }
 
 for %dist-lines.kv -> $letter, $dist-lines {
-    my $dist-letters = dist-letters($letter, %dist-lines.keys, 'dists');
+    my $dist-letters = dist-letters($letter, 'dists', %dist-lines.keys);
     "html/dists-$letter.html".IO.spurt: main({
         :breadcrumb(['Distributions']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
@@ -66,7 +66,7 @@ for %dist-lines.kv -> $letter, $dist-lines {
 }
 
 for %auth-lines.kv -> $letter, $dist-lines {
-    my $dist-letters = dist-letters($letter, %dist-lines.keys, 'auths');
+    my $dist-letters = dist-letters($letter, 'auths', %dist-lines.keys);
     "html/auths-$letter.html".IO.spurt: main({
         :breadcrumb(['Authors']),
         :content( $dist-letters ~ dists({ :$dist-lines }) ~ $dist-letters ),
