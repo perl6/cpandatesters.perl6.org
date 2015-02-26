@@ -31,9 +31,6 @@ while $sth.fetchrow_hashref -> $/ {
     @name-auth.push: $<distname>, $<distauth>
 }
 
-say @name-auth;
-say @name-auth.elems / 2;
-
 for @name-auth -> $distname, $distauth is copy {
     my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backend,osname,osver,arch
                             FROM reports
