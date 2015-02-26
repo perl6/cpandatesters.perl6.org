@@ -23,7 +23,7 @@ my $mark = $dbh.prepare('UPDATE reports
 my $todo = $dbh.prepare('SELECT *
                          FROM reports
                          WHERE "gen-report"
-                         LIMIT 100');
+                         LIMIT 250');
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     "html/reports/$r<id>.html".IO.spurt: main({
