@@ -49,7 +49,7 @@ while $sth.fetchrow_hashref -> $m {
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
 
     %dist-lines{$dist-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
-        "dist/&uri_encode($dist-letter)/&encode_punycode($distname)/&encode_punycode($distauth).html");
+        "dist/&uri_encode($dist-letter)/&encode_punycode($<distname>)/&encode_punycode($<distauth>).html");
 }
 
 for %dist-lines.kv -> $letter, $dist-lines {
@@ -74,7 +74,7 @@ while $sth.fetchrow_hashref -> $m {
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
 
     %auth-lines{$auth-letter} ~= dist-line($m, %dist-quality{$m<distauth>}{$m<distname>},
-        "auth/&uri_encode($auth-letter)/&encode_punycode($distauth)/&encode_punycode($distname).html");
+        "auth/&uri_encode($auth-letter)/&encode_punycode($<distauth>)/&encode_punycode($<distname>).html");
 }
 
 for %auth-lines.kv -> $letter, $dist-lines {
