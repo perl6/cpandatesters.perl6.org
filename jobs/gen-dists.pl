@@ -74,6 +74,7 @@ while $sth.fetchrow_hashref -> $/ {
     my $auth-letter = $<distauth>.Str.substr(0, 1).uc;
     $auth-letter    = '#' if $auth-letter !~~ 'A' .. 'Z';
 
+    my $distname    = encode_for_filesystem($<distname>);
     my $distauth    = encode_for_filesystem($<distauth>);
 
     %auth-lines{$auth-letter} ~= dist-line($/, %dist-quality{$<distauth>}{$<distname>},
