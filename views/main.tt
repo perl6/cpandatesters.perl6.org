@@ -37,9 +37,9 @@
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse" id="navbarCollapse">
                             <ul class="nav navbar-nav">
-                                <li<%= $x<path> ~~ /^ '/dists-' . '.html' [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/dists-A.html">Distributions</a></li>
-                                <li<%= $x<path> ~~ /^ '/auths-' . '.html' [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/auths-A.html">Authors</a></li>
-                                <li<%= $x<path> ~~ /^ '/recent.html'      [ \b | $ ] / ?? ' class="active"' !! '' %>><a href="/recent.html">Most recent reports</a></li>
+                                <li<%= $x<path> ~~ /^ '/dist'        / ?? ' class="active"' !! '' %>><a href="/dists-A.html">Distributions</a></li>
+                                <li<%= $x<path> ~~ /^ '/auth'        / ?? ' class="active"' !! '' %>><a href="/auths-A.html">Authors</a></li>
+                                <li<%= $x<path> ~~ /^ '/recent.html' / ?? ' class="active"' !! '' %>><a href="/recent.html">Most recent reports</a></li>
                             </ul>
                         </div>
                     </div>
