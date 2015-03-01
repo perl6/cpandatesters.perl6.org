@@ -49,7 +49,7 @@ for @name-auth -> $distname, $distauth {
                             ORDER BY id DESC');
     $sth.execute($distname, $distauth);
     my %reports;
-    my @osnames = <linux mswin32 macosx netbsd openbsd freebsd solaris>;
+    my @osnames = <linux win32 macosx netbsd openbsd freebsd solaris>;
     my %stats;
     while $sth.fetchrow_hashref -> $/ {
         %stats{$<compver>}{$<osname>}{$<backend>}{$<grade>}++;
