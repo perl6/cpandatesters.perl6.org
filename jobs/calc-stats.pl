@@ -5,6 +5,11 @@ use lib 'lib';
 
 use DBIish;
 
+my $lock = 'calc-stats.lock'.IO;
+exit if $lock.e;
+
+'calc-stats.lock'.IO.open(:w).close; # that's like `touch calc-stats.lock`
+
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -18,8 +23,7 @@ my $mark_report    = $dbh.prepare('UPDATE reports
                                    WHERE id = ?');
 my $dists_todo     = $dbh.prepare('SELECT DISTINCT distname, distauth
                                    FROM reports
-                                   WHERE "calc-stats"
-                                   LIMIT 100');
+                                   WHERE "calc-stats"');
 my $insert_quality = $dbh.prepare('INSERT INTO distquality
                                    (distname,distauth,backend,pass,na,fail)
                                    VALUES (?,?,?,?,?,?)');
@@ -99,3 +103,4 @@ for @distnames -> $distname, $distauth {
 }
 
 $dbh.disconnect();
+$lock.unlink;
