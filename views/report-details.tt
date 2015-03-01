@@ -19,7 +19,7 @@
             </tr>
             <tr>
                 <td>Operating system</td>
-                <td><%= $raw<distro><name> ~ ' ' ~ $raw<distro><release> ~ ' ' ~ $raw<kernel><arch> %></td>
+                <td><%= $raw<distro><name> ($raw<kernel><name>) ~ ' ' ~ ($raw<distro><release> // $raw<distro><version>) ~ ' ' ~ ($raw<kernel><arch> // $raw<kernel><bits>) %></td>
             </tr>
         </tbody>
     </table>
