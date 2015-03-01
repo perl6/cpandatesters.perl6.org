@@ -9,6 +9,7 @@
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css">
         <link rel="stylesheet" type="text/css" href="/css/cpandatesters.css">
         <link rel="stylesheet" type="text/css" href="/css/font-awesome.css">
+        <link rel="stylesheet" type="text/css" href="/css/octicons.css">
         <script type="text/javascript" src="/js/jquery.min.js"></script>
         <script type="text/javascript" src="/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/js/cpandatesters.js"></script>
@@ -32,7 +33,8 @@
                                 <span class="icon-bar"></span>
                                 <span class="icon-bar"></span>
                             </button>
-                            <a class="navbar-brand" href="/">cpandatesters</a>
+                            <a class="navbar-brand" href="http://testers.p6c.org/" style="padding-top: 8px; margin: 0">
+                                <span class="mega-octicon octicon-flame"></span> testers.perl6.org</a>
                         </div>
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse" id="navbarCollapse">
