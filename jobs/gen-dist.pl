@@ -25,8 +25,9 @@ my &dist         := Template::Mojo.new(slurp 'views/dist.tt').code;
 my &cell         := Template::Mojo.new(slurp 'views/cell.tt').code;
 my &report-line  := Template::Mojo.new(slurp 'views/report-line.tt').code;
 my &report-table := Template::Mojo.new(slurp 'views/report-table.tt').code;
-my &stats        := Template::Mojo.new(slurp 'views/stats.tt').code;
 my &main         := Template::Mojo.new(slurp 'views/main.tt').code;
+
+sub infix:<&&~>($l, $r) { $l ?? $l ~ $r !! $r }
 
 my $todo = $dbh.prepare('SELECT DISTINCT distname,distauth
                          FROM distquality
@@ -59,11 +60,17 @@ for @name-auth -> $distname, $distauth {
         $<breadcrumb> = "/dist/$distname";
         %reports{$<distver>}.push: report-line($/)
     }
+
+    my %dev-stats;
     for @osnames -> $osname {
-        for %stats.keys -> $compver is copy {
+        for %stats.keys -> $compver {
+            my $dev-version = $compver ~~ /^(\d+ '.' \d+)('.' .+)$/ && ~$0;
             for <moar jvm parrot> -> $backend {
                 my $all = [+] %stats{$compver}{$osname}{$backend}.values;
                 for <PASS FAIL NA NOTESTS> -> $grade {
+                    if $dev-version {
+                        %dev-stats{$dev-version}{$osname}{$backend}{$grade} += %stats{$compver}{$osname}{$backend}{$grade} // 0;
+                    }
                     if %stats{$compver}{$osname}{$backend}{$grade} {
                         %stats{$compver}{$osname}{$backend}{$grade} /= $all / 100;
                         if 0 < %stats{$compver}{$osname}{$backend}{$grade} < 2 {
@@ -86,6 +93,73 @@ for @name-auth -> $distname, $distauth {
         }
     }
 
+    for @osnames -> $osname {
+        for %dev-stats.keys -> $compver {
+            for <moar jvm parrot> -> $backend {
+                my $all = [+] %dev-stats{$compver}{$osname}{$backend}.values;
+                for <PASS FAIL NA NOTESTS> -> $grade {
+                    if %dev-stats{$compver}{$osname}{$backend}{$grade} {
+                        %dev-stats{$compver}{$osname}{$backend}{$grade} /= $all / 100;
+                        if 0 < %dev-stats{$compver}{$osname}{$backend}{$grade} < 2 {
+                            %dev-stats{$compver}{$osname}{$backend}{$grade}.=ceiling
+                        }
+                        else {
+                            %dev-stats{$compver}{$osname}{$backend}{$grade}.=floor;
+                        }
+                    }
+                    else {
+                        %dev-stats{$compver}{$osname}{$backend}{$grade} = 0
+                    }
+                }
+                my $deviation = 100 - [+] %dev-stats{$compver}{$osname}{$backend}.values;
+                if -10 < $deviation < 10 {
+                    my $grade = %dev-stats{$compver}{$osname}{$backend}.sort(*.value).reverse[0].key;
+                    %dev-stats{$compver}{$osname}{$backend}{$grade} += $deviation;
+                }
+            }
+        }
+    }
+
+    @osnames.=sort;
+    my $stats = '';
+
+    my $last-dev-version = '';
+    for %stats.keys.sort({ Version.new($^b) cmp Version.new($^a)}) -> $compver {
+        my $dev-version = $compver ~~ /^(\d+ '.' \d+)('.' .+)$/ && ~$0;
+        if !$dev-version { # release
+            $stats &&~= '</tbody>';
+            $stats   ~= '<tbody><tr>
+                             <td><h4 style="margin: 0">' ~ $compver ~ '</h4></td>
+                             <td>' ~ @osnames.map({ cell(%stats{$compver}{$_}) }).join('</td><td>') ~ '</td>
+                         </tr>';
+            $last-dev-version = '';
+        }
+        else { # dev release
+            if $dev-version ne $last-dev-version {
+                my $id    = $dev-version.subst(/\W/, '_');
+                $stats &&~= '</tbody>';
+                $stats   ~= '<tbody><tr class="pointer clickableRow" data-toggle="#' ~ $id ~ '">
+                                 <td><h4 class="text-muted" style="margin: 0"><span class="fa fa-ellipsis-v"></span> ' ~ $dev-version ~ '.*</h4></td>
+                                 <td>' ~ @osnames.map({ cell(%dev-stats{$dev-version}{$_}) }).join('</td><td>') ~ '</td>
+                             </tr></tbody><tbody id="' ~ $id ~ '" class="collapse out">';
+                $last-dev-version = $dev-version;
+            }
+            $stats ~= '<tr>
+                           <td>' ~ $compver ~ '</td>
+                           <td>' ~ @osnames.map({ cell(%stats{$compver}{$_}) }).join('</td><td>') ~ '</td>
+                       </tr>';
+        }
+    }
+    $stats &&~= '</tbody>';
+    my $width = (85 / @osnames.elems).Int;
+    $stats    = '<thead>
+                    <tr>
+                        <th width="15%">Compiler version</th>
+                        ' ~ @osnames.map({'<th width="' ~ $width ~ '%">' ~ $_ ~ '</th>'}).join ~ '
+                    </tr>
+                </thead>'
+              ~ $stats;
+
     my $reports  = '';
     my @distvers = %reports.keys.sort({ Version.new($^b) cmp Version.new($^a)});
     for @distvers -> $distver {
@@ -93,10 +167,7 @@ for @name-auth -> $distname, $distauth {
                   ~ report-table({ :report-lines(%reports{$distver}.join("\n")) })
     }
 
-    my $content = dist({
-                    :stats( stats([@osnames.sort], $%stats, &cell) ),
-                    :report-tables($reports)
-                });
+    my $content = dist({ :$stats, :report-tables($reports) });
 
     my $dist-letter = $distname.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
