@@ -29,6 +29,7 @@ my $last-count = 'last-recents-report'.IO;
 
 if $last-count.e {
     if $last-count.slurp.Int == $newest-report-id {
+        $lock.unlink;
         exit 0;
     }
 }
@@ -44,6 +45,8 @@ my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backen
                         FROM reports
                         ORDER BY id DESC
                         LIMIT 1000');
+$sth.execute;
+
 
 my $osnamequery = $dbh.prepare('SELECT DISTINCT osname FROM reports');
 my $actual-report-count = $osnamequery.execute;
@@ -100,6 +103,7 @@ for @osnames -> $osname {
                     )
                 }),
             ),
+            :path(''),
         }
     )
 );
