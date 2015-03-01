@@ -6,6 +6,11 @@ use lib 'lib';
 use DBIish;
 use Template::Mojo;
 
+my $lock = 'gen-report.lock'.IO;
+exit if $lock.e;
+
+'gen-report.lock'.IO.open(:w).close; # that's like `touch gen-report.lock`
+
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -22,8 +27,7 @@ my $mark = $dbh.prepare('UPDATE reports
                          WHERE id = ?');
 my $todo = $dbh.prepare('SELECT *
                          FROM reports
-                         WHERE "gen-report"
-                         LIMIT 250');
+                         WHERE "gen-report"');
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     "html/reports/$r<id>.html".IO.spurt: main({
@@ -35,3 +39,4 @@ while $todo.fetchrow_hashref -> $r {
 }
 
 $dbh.disconnect();
+$lock.unlink;
