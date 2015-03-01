@@ -5,12 +5,12 @@ jQuery(document).ready(function($) {
         else if ($(this).attr("data-toggle")) {
             var elem = $($(this).attr("data-toggle"));
             if(elem.hasClass("out")) {
-                elem.addClass("in");
+                elem.fadeIn();
                 elem.removeClass("out");
             }
             else {
+                elem.fadeOut();
                 elem.addClass("out");
-                elem.removeClass("in");
             }
         }
     });
