@@ -6,15 +6,10 @@
             <div class="progress-bar progress-bar-warning" style="width: <%= $q<moar><na>   %>%"></div>
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<moar><fail> %>%"></div>
         </div>
-        <div class="progress progress-middle" title="JVM">
+        <div class="progress progress-bottom" title="JVM">
             <div class="progress-bar progress-bar-success" style="width: <%= $q<jvm><pass> %>%"></div>
             <div class="progress-bar progress-bar-warning" style="width: <%= $q<jvm><na>   %>%"></div>
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<jvm><fail> %>%"></div>
-        </div>
-        <div class="progress progress-bottom" title="Parrot">
-            <div class="progress-bar progress-bar-success" style="width: <%= $q<parrot><pass> %>%"></div>
-            <div class="progress-bar progress-bar-warning" style="width: <%= $q<parrot><na>   %>%"></div>
-            <div class="progress-bar progress-bar-danger"  style="width: <%= $q<parrot><fail> %>%"></div>
         </div>
     </td>
     <td><%= $x<distname> %></td>
