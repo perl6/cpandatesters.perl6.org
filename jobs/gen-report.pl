@@ -33,7 +33,7 @@ $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     my $report-data = from-json $r<raw>;
 
-    my $distname = $report-data<name>;
+    my $distname = $r<distname>;
 
     my $dist-letter = $distname.substr(0, 1).uc;
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
@@ -45,7 +45,7 @@ while $todo.fetchrow_hashref -> $r {
     $path = "$path/" ~ encode_punycode($distname);
 
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["$path/{encode_punycode($report-data<distname>)}.html" R=> $report-data<name>, "Report $r<id>"]),
+        :breadcrumb(["$path/{encode_punycode($r<distname>)}.html" R=> $report-data<name>, "Report $r<id>"]),
         :content( report-details($r, $report-data) ),
         :path(''),
     });
