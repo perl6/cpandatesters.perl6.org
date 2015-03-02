@@ -5,6 +5,7 @@ use lib 'lib';
 
 use DBIish;
 use Template::Mojo;
+use IDNA::Punycode;
 
 my $lock = 'gen-report.lock'.IO;
 exit if $lock.e;
@@ -31,10 +32,20 @@ my $todo = $dbh.prepare('SELECT *
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     my $report-data = from-json $r<raw>;
-    my $name = $report-data<name>;
-    my $initial = $name.substr(0, 1).uc;
+
+    my $distname = $report-data<name>;
+
+    my $dist-letter = $distname.substr(0, 1).uc;
+    $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
+    my $path        = "/dist/$dist-letter";
+
+    my $_distauth = $report-data<distauth> || '<unknown>';
+    $_distauth   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
+
+    $path = "$path/" ~ encode_punycode($distname);
+
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["/dist/$initial/$report-data<name>" R=> $report-data<name>, "Report $r<id>"]),
+        :breadcrumb(["$path/{encode_punycode($report-data<distname>)}.html" R=> $report-data<name>, "Report $r<id>"]),
         :content( report-details($r, $report-data) ),
         :path(''),
     });
