@@ -30,9 +30,10 @@ my $todo = $dbh.prepare('SELECT *
                          WHERE "gen-report"');
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
+    my $report-data = from-json $r<raw>;
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["Report $r<id>"]),
-        :content( report-details($r, from-json $r<raw>) ),
+        :breadcrumb(["/dist/" ~ $report-data<name> => $report-data<name>, "Report $r<id>"]),
+        :content( report-details($r, $report-data) ),
         :path(''),
     });
     $mark.execute($r<id>);
