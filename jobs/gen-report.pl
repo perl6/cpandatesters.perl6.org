@@ -39,7 +39,7 @@ while $todo.fetchrow_hashref -> $r {
     $dist-letter    = '#' if $dist-letter !~~ 'A' .. 'Z';
     my $path        = "/dist/$dist-letter";
 
-    my $_distauth = $report-data<distauth> || '<unknown>';
+    my $_distauth = $r<distauth> || '<unknown>';
     $_distauth   ~~ s:i/^ [ 'github:' | 'git:' | 'cpan:' ] //;
 
     $path = "$path/" ~ encode_punycode($distname);
