@@ -31,8 +31,10 @@ my $todo = $dbh.prepare('SELECT *
 $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     my $report-data = from-json $r<raw>;
+    my $name = $report-data<name>;
+    my $initial = $name.substr(0, 1).uc;
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["/dist/" ~ $report-data<name> R=> $report-data<name>, "Report $r<id>"]),
+        :breadcrumb(["/dist/$initial/$report-data<name>" R=> $report-data<name>, "Report $r<id>"]),
         :content( report-details($r, $report-data) ),
         :path(''),
     });
