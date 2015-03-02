@@ -32,7 +32,7 @@ $todo.execute();
 while $todo.fetchrow_hashref -> $r {
     my $report-data = from-json $r<raw>;
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["/dist/" ~ $report-data<name> => $report-data<name>, "Report $r<id>"]),
+        :breadcrumb(["/dist/" ~ $report-data<name> R=> $report-data<name>, "Report $r<id>"]),
         :content( report-details($r, $report-data) ),
         :path(''),
     });
