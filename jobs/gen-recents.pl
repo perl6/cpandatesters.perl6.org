@@ -45,12 +45,12 @@ my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backen
                         FROM reports
                         ORDER BY id DESC
                         LIMIT 1000');
-$sth.execute;
+my $actual-report-count = $sth.execute;
 
 
 my $osnamequery = $dbh.prepare('SELECT DISTINCT osname FROM reports');
-my $actual-report-count = $osnamequery.execute;
-my @osnames = $osnamequery>>[0];
+$osnamequery.execute;
+my @osnames = $osnamequery.fetchall-array>>[0];
 
 my @reports;
 my %stats;
