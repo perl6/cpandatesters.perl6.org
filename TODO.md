@@ -10,3 +10,4 @@ Note: "clickable" usually means "click to filter for said value" here.
 - [ ] <timotimo> FROGGS: the name of the distribution is surprisingly small on a test results page
 - [ ] <timotimo> and it'd be nice if you could reach the github repository website for the module from the test results page and maybe also the overview lists
 - [ ] <timotimo> FROGGS: also, the tables really ought to be sortable and stuff
+- [ ] consider *all* reports when generating stats for /recent, but only show one line per release and one line for all dev releases between two releases
