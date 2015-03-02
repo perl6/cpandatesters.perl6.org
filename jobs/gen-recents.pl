@@ -48,7 +48,7 @@ my $sth = $dbh.prepare('SELECT id,grade,distname,distauth,distver,compver,backen
 my $actual-report-count = $sth.execute;
 
 
-my $osnamequery = $dbh.prepare('SELECT DISTINCT last1k.osname FROM (SELECT osname FROM reports LIMIT 1000) as last1k');
+my $osnamequery = $dbh.prepare('SELECT DISTINCT last1k.osname FROM (SELECT osname FROM reports ORDER BY id DESC LIMIT 1000) as last1k');
 $osnamequery.execute;
 my @osnames = $osnamequery.fetchall-array>>[0];
 
