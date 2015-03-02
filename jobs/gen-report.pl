@@ -45,7 +45,7 @@ while $todo.fetchrow_hashref -> $r {
     $path = "$path/" ~ encode_punycode($distname);
 
     "html/reports/$r<id>.html".IO.spurt: main({
-        :breadcrumb(["$path/{enable_punycode($_distauth)}.html" R=> $report-data<name>, "Report $r<id>"]),
+        :breadcrumb(["$path/{encode_punycode($_distauth)}.html" R=> $report-data<name>, "Report $r<id>"]),
         :content( report-details($r, $report-data) ),
         :path(''),
     });
