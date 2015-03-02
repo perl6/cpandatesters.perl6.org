@@ -40,3 +40,7 @@ while $todo.fetchrow_hashref -> $r {
 
 $dbh.disconnect();
 $lock.unlink;
+
+CATCH {
+    $lock.unlink;
+}
