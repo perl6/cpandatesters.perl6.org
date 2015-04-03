@@ -24,7 +24,6 @@ my $last-count = 'last-recents-report'.IO;
 
 if $last-count.e {
     if $last-count.slurp.Int == $newest-report-id {
-        $lock.unlink;
         exit 0;
     }
 }
