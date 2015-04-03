@@ -8,11 +8,6 @@ use Template::Mojo;
 use URI::Encode;
 use IDNA::Punycode;
 
-my $lock = 'gen-dist.lock'.IO;
-exit if $lock.e;
-
-'gen-dist.lock'.IO.open(:w).close; # that's like `touch gen-dist.lock`
-
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -204,4 +199,3 @@ for @name-auth -> $distname, $distauth {
 }
 
 $dbh.disconnect();
-$lock.unlink;

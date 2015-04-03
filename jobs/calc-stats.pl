@@ -5,11 +5,6 @@ use lib 'lib';
 
 use DBIish;
 
-my $lock = 'calc-stats.lock'.IO;
-exit if $lock.e;
-
-'calc-stats.lock'.IO.open(:w).close; # that's like `touch calc-stats.lock`
-
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -103,4 +98,3 @@ for @distnames -> $distname, $distauth {
 }
 
 $dbh.disconnect();
-$lock.unlink;

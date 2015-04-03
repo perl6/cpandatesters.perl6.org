@@ -7,11 +7,6 @@ use DBIish;
 use Template::Mojo;
 use IDNA::Punycode;
 
-my $lock = 'gen-report.lock'.IO;
-exit if $lock.e;
-
-'gen-report.lock'.IO.open(:w).close; # that's like `touch gen-report.lock`
-
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -53,8 +48,3 @@ while $todo.fetchrow_hashref -> $r {
 }
 
 $dbh.disconnect();
-$lock.unlink;
-
-CATCH {
-    $lock.unlink;
-}

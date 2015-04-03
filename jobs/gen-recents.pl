@@ -6,11 +6,6 @@ use lib 'lib';
 use DBIish;
 use Template::Mojo;
 
-my $lock = 'gen-recent.lock'.IO;
-exit if $lock.e;
-
-'gen-recent.lock'.IO.open(:w).close; # that's like `touch gen-report.lock`
-
 # database configuration
 DBIish.install_driver('Pg');
 my $dbh = DBIish.connect('Pg',
@@ -110,8 +105,3 @@ for @osnames -> $osname {
 
 $dbh.disconnect();
 $last-count.spurt($newest-report-id);
-$lock.unlink();
-
-CATCH {
-    $lock.unlink();
-}
