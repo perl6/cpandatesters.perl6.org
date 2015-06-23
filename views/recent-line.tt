@@ -1,5 +1,5 @@
 % my ($x) = @_;
-<tr class="clickableRow" href="/reports/<%= $x<id> %>.html">
+<tr class="clickableRow">
     <td>
         <div class="progress" style="margin-bottom: 0">
             <div class="progress-bar progress-bar-<%=
@@ -12,7 +12,7 @@
             </div>
         </div>
     </td>
-    <td><%= $x<distname> %></td>
+    <td><a href="/reports/<%= $x<id> %>.html"><%= $x<distname> %></a></td>
     <td><%= $x<distver> %></td>
     <td><%= $x<compver> %></td>
     <td><%= $x<backend> %></td>
