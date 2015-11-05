@@ -1,14 +1,29 @@
+# testers.perl6.org
+
+## Introduction
+
+These scripts generate different HTML files for http://testers.perl6.org/
+
+## Scripts
+
+```
 html/auth/A/Arne Skjærholt/Net::ZMQ.html  gen-dist.pl
 html/dist/A/ADT/Timo Paulssen.html        gen-dist.pl
 html/reports/1.html                       gen-report.pl
 html/auths-A.html                         gen-dists.pl
 html/dists-A.html                         gen-dists.pl
+```
 
-TODO
+## TODO
 
-MISSING
+- Add missing script
+```
 html/recent.html                          gen-recent.pl
+```
 
+- Optimize script performance
+
+```
 $ time perl6-m jobs/calc-stats.pl
 real	1m1.527s
 user	0m24.192s
@@ -28,3 +43,4 @@ $ time perl6 jobs/gen-report.pl
 real	0m58.286s
 user	0m47.796s
 sys	0m0.208s
+```
