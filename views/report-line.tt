@@ -1,16 +1,18 @@
 % my ($x) = @_;
-<tr class="clickableRow" href="/reports/<%= $x<id> %>.html">
+<tr class="clickableRow">
     <td>
-        <div class="progress" style="margin-bottom: 0">
-            <div class="progress-bar progress-bar-<%=
-                do given $x<grade> {
-                    when 'PASS' { 'success' }
-                    when 'FAIL' { 'danger'  }
-                    default     { 'warning' }
-                } %>" style="width: 100%">
-                <span><%= $x<grade> %></span>
+        <a href="/reports/<%= $x<id> %>.html">
+            <div class="progress" style="margin-bottom: 0">
+                <div class="progress-bar progress-bar-<%=
+                    do given $x<grade> {
+                        when 'PASS' { 'success' }
+                        when 'FAIL' { 'danger'  }
+                        default     { 'warning' }
+                    } %>" style="width: 100%">
+                    <span><%= $x<grade> %></span>
+                </div>
             </div>
-        </div>
+        </a>
     </td>
     <td><%= $x<compver> %></td>
     <td><%= $x<backend> %></td>

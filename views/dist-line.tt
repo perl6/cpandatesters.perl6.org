@@ -1,5 +1,5 @@
 % my ($x, $q, $url)  = @_;
-<tr class="clickableRow" href="/<%= $url %>">
+<tr class="clickableRow">
     <td>
         <div class="progress progress-top" title="MoarVM">
             <div class="progress-bar progress-bar-success" style="width: <%= $q<moar><pass> %>%"></div>
@@ -12,7 +12,7 @@
             <div class="progress-bar progress-bar-danger"  style="width: <%= $q<jvm><fail> %>%"></div>
         </div>
     </td>
-    <td><%= $x<distname> %></td>
+    <td><a href="/<%= $url %>"><%= $x<distname> %></a></td>
     <td><%= $x<distauth> || '&lt;unknown&gt;' %></td>
     <td></td>
 </tr>
